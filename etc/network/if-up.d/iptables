@@ -1,3 +1,13 @@
+#!/bin/bash
+#
+# Restores iptables configuration.
+# Expected to reject everything BUT:
+# - icmp from anywhere
+# - ssh (22/tcp) from a whitelisted subnet
+# - openvpn (1094/udp) from anywhere
+#
+# Enables nat forwarding for the ipv4 subnet of VPN clients
+
 ALLOW_SSH_FROM='1.2.3.4/26'
 IFACE=eth0
 VPN_IFACE=tun0

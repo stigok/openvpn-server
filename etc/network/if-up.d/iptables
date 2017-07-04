@@ -1,0 +1,33 @@
+ALLOW_SSH_FROM='1.2.3.4/26'
+IFACE=eth0
+VPN_IFACE=tun0
+VPN_SUBNET='192.168.142.0/24'
+
+cat << ENDRULES | iptables-restore
+
+*nat
+:PREROUTING ACCEPT [0:0]
+:INPUT ACCEPT [0:0]
+:OUTPUT ACCEPT [0:0]
+:POSTROUTING ACCEPT [0:0]
+-A POSTROUTING -s ${VPN_SUBNET} -o ${VPN_IFACE} -j MASQUERADE
+COMMIT
+
+*filter
+:INPUT ACCEPT [0:0]
+:FORWARD ACCEPT [0:0]
+:OUTPUT ACCEPT [0:0]
+-A INPUT -i lo -j ACCEPT
+-A INPUT -i $IFACE -m state --state ESTABLISHED,RELATED -j ACCEPT
+-A INPUT -i $IFACE -p tcp -m tcp --dport 22 -s ${ALLOW_SSH_FROM} -m state --state NEW -j ACCEPT
+-A INPUT -i $IFACE -p udp -m udp --dport 1094 -m state --state NEW -j ACCEPT
+-A INPUT -p icmp -j ACCEPT
+
+-A FORWARD -i ${IFACE} -o ${VPN_IFACE} -m state --state ESTABLISHED,RELATED -j ACCEPT
+-A FORWARD -s ${VPN_SUBNET} -o ${IFACE} -j ACCEPT
+
+-A INPUT -j REJECT --reject-with icmp-port-unreachable
+-A FORWARD -j REJECT --reject-with icmp-port-unreachable
+COMMIT
+
+ENDRULES

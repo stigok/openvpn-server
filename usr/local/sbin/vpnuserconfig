@@ -1,0 +1,43 @@
+#!/bin/bash
+
+keys="/etc/openvpn/easy-rsa/keys"
+username=$1
+
+if [ -z "$username" ] ; then
+  >&2 echo "Username is required"
+  exit 1
+fi
+
+if [ ! -f "${keys}/$username.crt" ] ; then
+  >&2 echo "Username doesn't exist"
+  exit 2
+fi
+
+cat << EOF
+# OpenVPN client configuration
+# This configuration is auto-generated
+client
+remote 1.2.3.4 1194 udp
+remote-cert-tls server
+nobind
+dev tun
+tls-client
+cipher AES-256-CBC
+auth RSA-SHA512
+mute-replay-warnings
+#comp-lzo
+
+<ca>
+$(cat $keys/ca.crt)
+</ca>
+
+<cert>
+$(openssl x509 -in "$keys/$username.crt" -outform PEM)
+</cert>
+
+<key>
+$(cat $keys/$username.key)
+</key>
+
+# End of file
+EOF

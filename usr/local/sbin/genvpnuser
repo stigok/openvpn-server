@@ -1,0 +1,20 @@
+#!/bin/bash
+
+easyrsa="/etc/openvpn/easy-rsa"
+
+cd $easyrsa
+source ./vars
+keys="$KEY_DIR"
+username=$1
+
+if [ -z "$username" ] ; then
+  >&2 echo "Username is required"
+  exit 1
+fi
+
+if [ -f "${keys}/$username.crt" ] ; then
+  >&2 echo "Username already exists"
+  exit 2
+fi
+
+./pkitool $username

@@ -4,7 +4,7 @@
 # Expected to reject everything BUT:
 # - icmp from anywhere
 # - ssh (22/tcp) from a whitelisted subnet
-# - openvpn (1094/udp) from anywhere
+# - openvpn (1194/udp) from anywhere
 #
 # Enables nat forwarding for the ipv4 subnet of VPN clients
 
@@ -30,7 +30,9 @@ COMMIT
 -A INPUT -i lo -j ACCEPT
 -A INPUT -i $IFACE -m state --state ESTABLISHED,RELATED -j ACCEPT
 -A INPUT -i $IFACE -p tcp -m tcp --dport 22 -s ${ALLOW_SSH_FROM} -m state --state NEW -j ACCEPT
--A INPUT -i $IFACE -p udp -m udp --dport 1094 -m state --state NEW -j ACCEPT
+-A INPUT -i $IFACE -p udp -m udp --dport 1194
+#-A INPUT -i $IFACE -p udp -m udp --dport 443
+-m state --state NEW -j ACCEPT
 -A INPUT -p icmp -j ACCEPT
 
 -A FORWARD -i ${IFACE} -o ${VPN_IFACE} -m state --state ESTABLISHED,RELATED -j ACCEPT

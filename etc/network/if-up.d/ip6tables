@@ -4,7 +4,7 @@
 # Expected to reject everything BUT:
 # - icmpv6 from anywhere
 # - ssh (22/tcp) from a whitelisted ipv6 subnet
-# - openvpn (1094/udp) from anywhere
+# - openvpn (1194/udp) from anywhere
 #
 
 ALLOW_SSH_FROM='5afe:5afe:b10c::/48'
@@ -19,7 +19,8 @@ cat << ENDRULES | ip6tables-restore
 -A INPUT -i lo -j ACCEPT
 -A INPUT -i $IFACE -m state --state ESTABLISHED,RELATED -j ACCEPT
 -A INPUT -i $IFACE -p tcp -m tcp --dport 22 -s ${ALLOW_SSH_FROM} -m state --state NEW -j ACCEPT
--A INPUT -i $IFACE -p udp -m udp --dport 1094 -m state --state NEW -j ACCEPT
+-A INPUT -i $IFACE -p udp -m udp --dport 1194 -m state --state NEW -j ACCEPT
+#-A INPUT -i $IFACE -p udp -m udp --dport 443 -m state --state NEW -j ACCEPT
 -A INPUT -p ipv6-icmp -j ACCEPT
 -A INPUT -j REJECT --reject-with icmp6-port-unreachable
 -A FORWARD -j REJECT --reject-with icmp6-port-unreachable
